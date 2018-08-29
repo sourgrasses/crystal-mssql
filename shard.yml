@@ -1,0 +1,14 @@
+name: crystal-tds
+version: 0.1.0
+
+dependencies:
+    db:
+        github: crystal-lang/crystal-db
+        version: ~> 0.5.0
+
+authors:
+  - Jenn Wheeler <jwheeler@antiochcollege.edu>
+
+crystal: 0.26.0
+
+license: MIT

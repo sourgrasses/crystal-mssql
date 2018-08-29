@@ -1,0 +1,11 @@
+/docs/
+/lib/
+/bin/
+/.shards/
+
+# Libraries don't need dependency lock
+# Dependencies will be locked in application that uses them
+/shard.lock
+
+# ignore tests with db info in them for now
+/spec/*
