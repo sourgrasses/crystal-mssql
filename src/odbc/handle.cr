@@ -15,8 +15,8 @@ module ODBC
     end
 
     version = Pointer(Void).new(LibODBC::OdbcVer::SqlOvOdbc3.value)
-    result2 = LibODBC.set_env_attr(output_handle_ptr, LibODBC::EnvAttr::SqlAttrOdbcVersion.value, version, 0)
-    if result2.value != 0 && result2.value != 1
+    env_result = LibODBC.set_env_attr(output_handle_ptr, LibODBC::EnvAttr::SqlAttrOdbcVersion.value, version, 0)
+    if env_result.value != 0 && env_result.value != 1
       error = ODBC.get_detail("SQLSetEnvAttr", output_handle_ptr, 1)
       raise Errno.new(error)
     end

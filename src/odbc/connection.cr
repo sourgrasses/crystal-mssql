@@ -1,5 +1,7 @@
 module ODBC
   class Connection < DB::Connection
+    getter raw_conn
+
     def initialize(context : DB::ConnectionContext)
       # set up all the basic connection info
       super(context)
@@ -9,19 +11,19 @@ module ODBC
       conns_size = conn_string.size.to_i16
 
       @env = ODBC.alloc_env
-      @connection = ODBC.alloc_conn(@env)
+      @raw_conn = ODBC.alloc_conn(@env)
 
-      result = LibODBC.driver_connect(@connection,
+      result = LibODBC.driver_connect(@raw_conn,
                                       nil,
                                       conn_string,
                                       conns_size,
                                       nil,
                                       0,
                                       nil,
-                                      LibODBC::SqlDriverConnect::SqlDriverComplete)
+                                      LibODBC::DriverConnect::SqlDriverComplete)
 
       if result == LibODBC::SqlReturn::SqlSuccessWithInfo
-        puts ODBC.get_detail("SQLDriverConnect", @connection, 1)
+        puts ODBC.get_detail("SQLDriverConnect", @raw_conn, 1)
       elsif result != LibODBC::SqlReturn::SqlSuccess
         raise Errno.new("Error establishing connection to server")
       end
@@ -39,7 +41,7 @@ module ODBC
     def do_close
       LibODBC.disconnect(nil)
       LibODBC.free_handle(ODBC::HandleType::SqlHandleEnv.value, @env)
-      LibODBC.free_handle(ODBC::HandleType::SqlHandleDbc, @connection)
+      LibODBC.free_handle(ODBC::HandleType::SqlHandleDbc, @raw_conn)
     end
 
     # :nodoc:

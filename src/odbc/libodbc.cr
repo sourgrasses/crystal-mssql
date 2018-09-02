@@ -29,7 +29,7 @@ lib LibODBC
     SqlError            = -1
   end
 
-  enum SqlDriverConnect
+  enum DriverConnect
     SqlDriverNoPrompt           = 0
     SqlDriverComplete           = 1
     SqlDriverPrompt             = 2
@@ -44,11 +44,28 @@ lib LibODBC
     SqlAttrOutputNts         = 10001
   end
 
+  enum FetchOrientation
+    SqlFetchNext        = 1
+    SqlFetchFirst       = 2
+    SqlFetchLast        = 3
+    SqlFetchPrior       = 4
+    SqlFetchAbsolute    = 5
+    SqlFetchRelative    = 6
+    SqlFetchFirstuser   = 31
+    SqlFetchFirstSystem = 32
+  end
+
   enum OdbcVer
     SqlOvOdbc2      = 2
     SqlOvOdbc3      = 3
     SqlOvOdbc380    = 380
     SqlOvOdbc4      = 400
+  end
+
+  enum Nullable
+    SqlNullableUnknown  = 2
+    SqlNullable         = 1
+    SqlNoNulls          = 0
   end
 
   fun alloc_handle = SQLAllocHandle(handle_type : SqlSmallInt,
@@ -132,6 +149,10 @@ lib LibODBC
 
   fun fetch = SQLFetch(statement_handle : SqlHStmt) : SqlReturn
 
+  fun fetch_scroll = SQLFetchScroll(statement_handle : SqlHStmt,
+                                    fetch_orientation : SqlSmallInt,
+                                    fetch_offset : SqlLen) : SqlReturn
+
   fun free_handle = SQLFreeHandle(handle_type : SqlSmallInt, handle : SqlHandle)
 
   fun free_stmt = SQLFreeStmt(statement_handle : SqlHStmt, option : SqlUSmallInt)
@@ -160,7 +181,12 @@ lib LibODBC
 
   fun num_result_cols = SQLNumResultCols(statement_handle : SqlHStmt, column_count_ptr : SqlSmallInt*) : SqlReturn
 
-  fun prepare = SQLPrepare(statement_handle : SqlHStmt, statement_text : SqlChar*, text_length : SqlInteger) : SqlReturn
+  fun prepare = SQLPrepare(statement_handle : SqlHStmt,
+                           statement_text : SqlChar*,
+                           text_length : SqlInteger) : SqlReturn
+
+  fun row_count = SQLRowCount(statement_handle : SqlHStmt,
+                              row_count_ptr : SqlLen*) : SqlReturn
 
   fun set_connect_attr = SQLSetConnectAttr(connection_handle : SqlHDBC,
                                            attribute : SqlInteger,
