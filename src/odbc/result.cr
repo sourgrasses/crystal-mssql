@@ -8,11 +8,12 @@ module ODBC
     getter name, col_type, col_size, nullable
 
     def initialize(stmt : Void*, col_num : Int32)
-      LibODBC.describe_col(stmt, col_num, out name,
+      name = Pointer(UInt8).malloc(256)
+      LibODBC.describe_col(stmt, col_num, name,
                            256, out name_len, out col_type,
                            out col_size, out digits, out nullable)
 
-      @name = String.new(Pointer(UInt8).new(name))
+      @name = String.new(name)
       @col_type = SqlDataType.new(col_type.to_i32)
       @col_size = col_size
       @nullable =  case nullable
@@ -115,6 +116,7 @@ module ODBC
       else
         @col_index = 0
         @row_index += 1
+        self.read
       end
     end
   end
