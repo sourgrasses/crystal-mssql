@@ -56,7 +56,7 @@ module ODBC
       i = 0
       while i < @num_cols
         # kind of awkward workaround for dealing with an array of pointers and the fact that
-        # arrays are themselves built of pointers and somake accessing the contained pointers
+        # arrays are themselves built of pointers and so make accessing the contained pointers
         # a bit clumsy
         #
         # TODO: a better way to handle this probably?

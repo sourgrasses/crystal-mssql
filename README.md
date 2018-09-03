@@ -1,6 +1,12 @@
 # crystal-odbc
 
-TODO: Write a description here
+A wrapper around the unixODBC API, allowing one to connect to Microsoft SQL Server and, ostensibly, other databases that support ODBC from Crystal using the crystal-db API.
+
+## Status
+
+This is very much still a work in progress. Right now I'm definitely privileging making this work with MS SQL Server, mostly testing against SQL Server 2008 from Arch Linux and macOS when I get the chance.
+
+Lots of things don't work or aren't yet implemented, all io is blocking, and I've used weird workarounds in a few places to deal with some pointer and buffer issues that definitely need to be cleaned up among many other things.
 
 ## Installation
 
@@ -16,13 +22,38 @@ dependencies:
 
 ```crystal
 require "crystal-odbc"
-```
+require "db"
 
-TODO: Write usage instructions here
+# connect to localhost mysql test db
+DB.open "odbc://user:password@localhost/dsn" do |db|
+  db.exec "drop table if exists goodfriends"
+  db.exec "create table goodfriends (name varchar(30), age int)"
+  db.exec "insert into goodfriends values (?, ?)", "Ben Buddy", 28
+
+  args = [] of DB::Any
+  args << "Sarah Bear"
+  args << 33
+  db.exec "insert into contacts values (?, ?)", args
+
+  puts "max age:"
+  puts db.scalar "select max(age) from contacts" # => 33
+
+  puts "contacts:"
+  db.query "select name, age from contacts order by age desc" do |rs|
+    puts "#{rs.column_name(0)} (#{rs.column_name(1)})"
+    # => name (age)
+    rs.each do
+      puts "#{rs.read} (#{rs.read})"
+      # => Sarah Bear (33)
+      # => Ben Buddy (28)
+    end
+  end
+end
+```
 
 ## Development
 
-TODO: Most things!
+TODO: Lots and lots!
 
 ## Contributing
 
