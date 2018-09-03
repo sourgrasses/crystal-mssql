@@ -1,4 +1,4 @@
-module ODBC
+module MSSQL
   class Field
     @name : String
     @col_type : SqlDataType
@@ -44,10 +44,10 @@ module ODBC
       LibODBC.num_result_cols(statement.raw_stmt, out num_cols)
       @num_cols = num_cols.to_i32
 
-      @fields = Array(ODBC::Field).new
+      @fields = Array(MSSQL::Field).new
       i = 0
       while i < @num_cols
-        @fields.push(ODBC::Field.new(statement.raw_stmt, i))
+        @fields.push(MSSQL::Field.new(statement.raw_stmt, i))
         i += 1
       end
 

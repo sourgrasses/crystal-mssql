@@ -1,4 +1,4 @@
-module ODBC
+module MSSQL
   extend self
 
   # Coerce the `String` into utf8 encoding

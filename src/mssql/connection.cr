@@ -1,4 +1,4 @@
-module ODBC
+module MSSQL
   class Connection < DB::Connection
     getter raw_conn
 
@@ -10,8 +10,8 @@ module ODBC
       # there's never a need to tax the driver by having it calculate the size for us
       conns_size = conn_string.size.to_i16
 
-      @env = ODBC.alloc_env
-      @raw_conn = ODBC.alloc_conn(@env)
+      @env = MSSQL.alloc_env
+      @raw_conn = MSSQL.alloc_conn(@env)
 
       result = LibODBC.driver_connect(@raw_conn,
                                       nil,
@@ -23,7 +23,7 @@ module ODBC
                                       LibODBC::DriverConnect::SqlDriverComplete)
 
       if result == LibODBC::SqlReturn::SqlSuccessWithInfo
-        puts ODBC.get_detail("SQLDriverConnect", @raw_conn, 1)
+        puts MSSQL.get_detail("SQLDriverConnect", @raw_conn, 1)
       elsif result != LibODBC::SqlReturn::SqlSuccess
         raise Errno.new("Error establishing connection to server")
       end
@@ -40,8 +40,8 @@ module ODBC
 
     def do_close
       LibODBC.disconnect(nil)
-      LibODBC.free_handle(ODBC::HandleType::SqlHandleEnv.value, @env)
-      LibODBC.free_handle(ODBC::HandleType::SqlHandleDbc, @raw_conn)
+      LibODBC.free_handle(LibODBC::HandleType::SqlHandleEnv.value, @env)
+      LibODBC.free_handle(LibODBC::HandleType::SqlHandleDbc, @raw_conn)
     end
 
     # :nodoc:
@@ -51,7 +51,7 @@ module ODBC
       pass = context.uri.password
       conn_string = "DSN=#{dsn};UID=#{user};PWD=#{pass}"
 
-      ODBC.encode_nts(conn_string)
+      MSSQL.encode_nts(conn_string)
     end
   end
 end

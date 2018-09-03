@@ -61,6 +61,13 @@ lib LibODBC
     SqlFetchFirstSystem = 32
   end
 
+  enum HandleType
+    SqlHandleEnv    = 1
+    SqlHandleDbc    = 2
+    SqlHandleStmt   = 3
+    SqlHandleDesc   = 4
+  end
+
   enum LockType
     SqlLockNoChange     = 0x0000001L
     SqlLockExclusive    = 0x0000002L

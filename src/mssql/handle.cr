@@ -1,15 +1,8 @@
-module ODBC
+module MSSQL
   extend self
 
-  enum HandleType
-    SqlHandleEnv    = 1
-    SqlHandleDbc    = 2
-    SqlHandleStmt   = 3
-    SqlHandleDesc   = 4
-  end
-
   def alloc_env : Void*
-    result = LibODBC.alloc_handle(HandleType::SqlHandleEnv.value, nil, out output_handle_ptr)
+    result = LibODBC.alloc_handle(LibODBC::HandleType::SqlHandleEnv.value, nil, out output_handle_ptr)
     if result.value != 0 && result.value != 1
       raise Errno.new("Error allocating environment handle")
     end
@@ -17,7 +10,7 @@ module ODBC
     version = Pointer(Void).new(LibODBC::OdbcVer::SqlOvOdbc3.value)
     env_result = LibODBC.set_env_attr(output_handle_ptr, LibODBC::EnvAttr::SqlAttrOdbcVersion.value, version, 0)
     if env_result.value != 0 && env_result.value != 1
-      error = ODBC.get_detail("SQLSetEnvAttr", output_handle_ptr, 1)
+      error = MSSQL.get_detail("SQLSetEnvAttr", output_handle_ptr, 1)
       raise Errno.new(error)
     end
 
@@ -25,10 +18,10 @@ module ODBC
   end
 
   def alloc_conn(env : Void*) : Void*
-    result = LibODBC.alloc_handle(HandleType::SqlHandleDbc.value, env.as(Void**), out output_handle_ptr)
+    result = LibODBC.alloc_handle(LibODBC::HandleType::SqlHandleDbc.value, env.as(Void**), out output_handle_ptr)
 
     if result.value != 0 && result.value != 1
-      error = ODBC.get_detail("SQLAllocHandle", output_handle_ptr, 1)
+      error = MSSQL.get_detail("SQLAllocHandle", output_handle_ptr, 1)
       raise Errno.new(error)
     end
 
@@ -36,9 +29,9 @@ module ODBC
   end
 
   def alloc_stmt(dbc : Void*) : Void*
-    result = LibODBC.alloc_handle(HandleType::SqlHandleStmt.value, dbc.as(Void**), out output_handle_ptr)
+    result = LibODBC.alloc_handle(LibODBC::HandleType::SqlHandleStmt.value, dbc.as(Void**), out output_handle_ptr)
     if result.value != 0 && result.value != 1
-      error = ODBC.get_detail("SQLAllocHandle", output_handle_ptr, 1)
+      error = MSSQL.get_detail("SQLAllocHandle", output_handle_ptr, 1)
       raise Errno.new(error)
     end
 
