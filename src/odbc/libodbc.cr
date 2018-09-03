@@ -14,6 +14,11 @@ lib LibODBC
   alias SqlLen = Int64
   alias SqlULen = UInt64
   alias Bookmark = Array(UInt32)
+  {% if flag?(:x86_64) || flag?(:aarch64) %}
+    alias SqlSetPosiRow = UInt64
+  {% elsif flag?(:i686) || flag?(:arm) || flag?(:win32) %}
+    alias SqlSetPosiRow = SqlUSmallInt
+  {% end%}
 
   alias SqlHandle = Void*
   alias SqlHStmt = Void*
@@ -27,6 +32,7 @@ lib LibODBC
     SqlSuccessWithInfo  = 1
     SqlInvalidHandle    = -2
     SqlError            = -1
+    SqlNoData           = 100
   end
 
   enum DriverConnect
@@ -55,6 +61,18 @@ lib LibODBC
     SqlFetchFirstSystem = 32
   end
 
+  enum LockType
+    SqlLockNoChange     = 0x0000001L
+    SqlLockExclusive    = 0x0000002L
+    SqlLockUnlock       = 0x0000004L
+  end
+
+  enum Nullable
+    SqlNullableUnknown  = 2
+    SqlNullable         = 1
+    SqlNoNulls          = 0
+  end
+
   enum OdbcVer
     SqlOvOdbc2      = 2
     SqlOvOdbc3      = 3
@@ -62,10 +80,11 @@ lib LibODBC
     SqlOvOdbc4      = 400
   end
 
-  enum Nullable
-    SqlNullableUnknown  = 2
-    SqlNullable         = 1
-    SqlNoNulls          = 0
+  enum Operation
+    SqlPosition = 0
+    SqlRefresh  = 1
+    SqlUpdate   = 2
+    SqlDelete   = 3
   end
 
   fun alloc_handle = SQLAllocHandle(handle_type : SqlSmallInt,
@@ -197,6 +216,10 @@ lib LibODBC
                                    attribute : SqlInteger,
                                    value_ptr : SqlPointer,
                                    string_length : SqlInteger) : SqlReturn
+  fun set_pos = SQLSetPos(statement_handle : SqlHStmt,
+                          row_number : SqlSetPosiRow,
+                          operation : SqlUSmallInt,
+                          lock_type : SqlUSmallInt) : SqlReturn
 
   fun set_stmt_attr = SQLSetStmtAttr(statement_handle : SqlHStmt,
                                      attribute : SqlInteger,

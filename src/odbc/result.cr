@@ -31,7 +31,7 @@ module ODBC
     @buffer : Array(UInt8*)
     @strlen : Array(Int64)
 
-    getter rows_affected
+    getter rows_affected, num_cols
 
     def initialize(statement)
       super(statement)
@@ -78,11 +78,14 @@ module ODBC
     end
 
     def move_next
-      if @row_index < @rows_affected - 1
+      @col_index = 0
+
+      result = LibODBC.fetch(statement.raw_stmt)
+      if result != LibODBC::SqlReturn::SqlSuccess && result != LibODBC::SqlReturn::SqlSuccessWithInfo
+        false
+      else
         @row_index += 1
         true
-      else
-        false
       end
     end
 
@@ -99,25 +102,13 @@ module ODBC
     end
 
     def read
-      case @col_index
-      when 0
-        result = LibODBC.fetch_scroll(statement.raw_stmt, LibODBC::FetchOrientation::SqlFetchAbsolute, @row_index + 1)
-        if result != LibODBC::SqlReturn::SqlSuccess && result != LibODBC::SqlReturn::SqlSuccessWithInfo
-          err = ODBC.get_detail("SQLFetchScroll", statement.raw_stmt, 1)
-          raise "Error fetching row #{@row_index + 1}: #{err}"
-        end
+      value = @buffer[@col_index]
+      @col_index += 1
+      value
+    end
 
-        @col_index += 1
-        return @buffer[0]
-      when .<(@num_cols)
-        value = buffer[@col_index]
-        @col_index += 1
-        return value
-      else
-        @col_index = 0
-        @row_index += 1
-        self.read
-      end
+    protected def do_close
+      super
     end
   end
 end
