@@ -24,8 +24,8 @@ dependencies:
 require "crystal-odbc"
 require "db"
 
-# connect to localhost mysql test db
-DB.open "odbc://user:password@localhost/dsn" do |db|
+# connect to SQL Server dsn specified in /etc/odbc.ini or some other config file
+DB.open "odbc://user:password@dsn" do |db|
   db.exec "drop table if exists goodfriends"
   db.exec "create table goodfriends (name varchar(30), age int)"
   db.exec "insert into goodfriends values (?, ?)", "Ben Buddy", 28
