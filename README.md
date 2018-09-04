@@ -14,14 +14,14 @@ Add this to your application's `shard.yml`:
 
 ```yaml
 dependencies:
-  crystal-mssql:
+  mssql:
     github: sourgrasses/crystal-mssql
 ```
 
 ## Usage
 
 ```crystal
-require "crystal-mssql"
+require "mssql"
 require "db"
 
 # connect to SQL Server dsn specified in /etc/odbc.ini or some other config file
