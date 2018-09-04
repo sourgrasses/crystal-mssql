@@ -1,4 +1,4 @@
-name: crystal-mssql
+name: mssql
 version: 0.1.0
 
 dependencies:
