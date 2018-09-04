@@ -47,7 +47,7 @@ module MSSQL
       @fields = Array(MSSQL::Field).new
       i = 0
       while i < @num_cols
-        @fields.push(MSSQL::Field.new(statement.raw_stmt, i))
+        @fields.push(MSSQL::Field.new(statement.raw_stmt, i + 1))
         i += 1
       end
 
@@ -60,15 +60,13 @@ module MSSQL
         # a bit clumsy
         #
         # TODO: a better way to handle this probably?
-        tmp_buf = Pointer(UInt8).malloc
+        tmp_buf = Pointer(UInt8).malloc(@fields[i].col_size)
 
-        # and here, since we're calling C functions here we have to specify the length of the buffer into which
-        # we're reading the SqlCChars. does bind_col realloc strictly based on that? need to find some way to
-        # get around this since we'd rather dynamically rellocate memory to accommodate a large field than
-        # unnecessarily snip the end off
-        LibODBC.bind_col(statement.raw_stmt, i + 1, SqlCDataType::SqlCChar.value, tmp_buf.as(Void*), 256, out ind)
+        LibODBC.bind_col(statement.raw_stmt, i + 1, SqlCDataType::SqlCChar.value, tmp_buf.as(Void*), @fields[i].col_size, out ind)
+
         @buffer[i] = tmp_buf
         @strlen[i] = ind
+
         i += 1
       end
     end
