@@ -60,9 +60,9 @@ module MSSQL
         # a bit clumsy
         #
         # TODO: a better way to handle this probably?
-        tmp_buf = Pointer(UInt8).malloc(@fields[i].col_size)
+        tmp_buf = Pointer(UInt8).malloc(@fields[i].col_size + 1)
 
-        LibODBC.bind_col(statement.raw_stmt, i + 1, SqlCDataType::SqlCChar.value, tmp_buf.as(Void*), @fields[i].col_size, out ind)
+        LibODBC.bind_col(statement.raw_stmt, i + 1, SqlCDataType::SqlCChar.value, tmp_buf.as(Void*), @fields[i].col_size + 1, out ind)
 
         @buffer[i] = tmp_buf
         @strlen[i] = ind
@@ -103,6 +103,70 @@ module MSSQL
       value = @buffer[@col_index]
       @col_index += 1
       value
+    end
+
+    def read(t : Int32.class) : Int32
+      self.read(String).to_i32
+    end
+
+    def read(type : Int32?.class) : Int32?
+      read(String).to_i32?
+    end
+
+    def read(t : Int64.class) : Int64
+      self.read(String).to_i64
+    end
+
+    def read(type : Int64?.class) : Int64?
+      read(String).to_i64?
+    end
+
+    def read(t : UInt32.class) : UInt32
+      self.read(String).to_u32
+    end
+
+    def read(type : UInt32?.class) : UInt32?
+      read(String).to_u32?
+    end
+
+    def read(t : UInt64.class) : UInt64
+      self.read(String).to_u64
+    end
+
+    def read(type : UInt64?.class) : UInt64?
+      read(String).to_u64?
+    end
+
+    def read(t : Float32.class) : Float32
+      self.read(String).to_f32
+    end
+
+    def read(type : Float32?.class) : Float32?
+      read(String).to_f32?
+    end
+
+    def read(t : Float64.class) : Float64
+      self.read(String).to_f64
+    end
+
+    def read(type : Float64?.class) : Float64?
+      read(String).to_f64?
+    end
+
+    def read(t : Bool.class) : Bool
+      self.read(String) == "1"
+    end
+
+    def read(t : Time.class, pattern : String) : Time
+      Time.parse_local(self.read(String), pattern)
+    end
+
+    def read(t : String.class) : String
+      String.new(self.read)
+    end
+
+    def read(type : String?.class) : String?
+      self.read.try &.to_s
     end
 
     protected def do_close
