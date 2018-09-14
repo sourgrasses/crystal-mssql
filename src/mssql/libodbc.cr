@@ -35,6 +35,32 @@ lib LibODBC
     SqlNoData           = 100
   end
 
+  enum BindParam
+    SqlParamTypeUnknown         = 0
+    SqlParamInput               = 1
+    SqlParamInputOutput         = 2
+    SqlResultCol                = 3
+    SqlParamOutput              = 4
+    SqlReturnValue              = 5
+    SqlParamInputOutputStream   = 8
+    SqlParamOutputStream        = 16
+  end
+
+  enum DiagIdentifier
+    SqlDiagReturncode           = 1
+    SqlDiagNumber               = 2
+    SqlDiagRowCount             = 3
+    SqlDiagSqlstate             = 4
+    SqlDiagNative               = 5
+    SqlDiagMessageText          = 6
+    SqlDiagDynamicFunction      = 7
+    SqlDiagClassOrigin          = 8
+    SqlDiagSubclassOrigin       = 9
+    SqlDiagConnectionName       = 10
+    SqlDiagServerName           = 11
+    SqlDiagDynamicFunctionCode  = 12
+  end
+
   enum DriverConnect
     SqlDriverNoPrompt           = 0
     SqlDriverComplete           = 1
@@ -190,12 +216,20 @@ lib LibODBC
                             buffer_length : SqlLen,
                             str_len_or_ind_ptr : SqlLen*) : SqlReturn
 
+  fun get_diag_field = SQLGetDiagField(handle_type : SqlSmallInt,
+                                       handle : SqlHandle,
+                                       rec_number : SqlSmallInt, 
+                                       diag_identifier : SqlSmallInt,
+                                       diag_info_ptr : SqlPointer,
+                                       buffer_length : SqlSmallInt,
+                                       string_length_ptr : SqlSmallInt*) : SqlReturn
+
   fun get_diag_rec = SQLGetDiagRec(handle_type : SqlSmallInt,
                                    handle : SqlHandle,
                                    rec_number : SqlSmallInt,
                                    sql_state : SqlChar*,
                                    native_error_ptr : SqlInteger*,
-                                   messagE_text : SqlChar*,
+                                   message_text : SqlChar*,
                                    buffer_length : SqlSmallInt,
                                    text_length_ptr : SqlSmallInt*) : SqlReturn
 

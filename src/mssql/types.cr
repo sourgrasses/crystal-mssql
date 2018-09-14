@@ -1,3 +1,84 @@
+module MSSQL::Type
+  extend self
+
+  def get_type(arg)
+    case typeof(arg)
+    when String.class
+      SqlDataType::SqlVarchar
+    when Char.class
+      SqlDataType::SqlChar
+    when Bool.class
+      SqlDataType::SqlExtBit
+    when Int8.class
+      SqlDataType::SqlExtTinyInt
+    when Int16.class
+      SqlDataType::SqlSmallInt
+    when Int32.class
+      SqlDataType::SqlInteger
+    when Int64.class
+      SqlDataType::SqlExtBigInt
+    when Float32.class
+      SqlDataType::SqlReal
+    when Float64.class
+      SqlDataType::SqlFloat
+    else
+      SqlDataType::SqlUnknownType
+    end
+  end
+
+  def get_c_type(arg)
+    case typeof(arg)
+    when String.class, Char.class
+      SqlCDataType::SqlCChar
+    when Bool.class
+      SqlCDataType::SqlCBit
+    when Int8.class
+      SqlCDataType::SqlCSTinyInt
+    when Int16.class
+      SqlCDataType::SqlCSShort
+    when Int32.class
+      SqlCDataType::SqlCSLong
+    when Int64.class
+      SqlCDataType::SqlCSBigInt
+    when UInt8.class
+      SqlCDataType::SqlCUTinyInt
+    when UInt16.class
+      SqlCDataType::SqlCUShort
+    when UInt32.class
+      SqlCDataType::SqlCULong
+    when UInt64.class
+      SqlCDataType::SqlCUBigInt
+    when Float32.class
+      SqlCDataType::SqlCFloat
+    when Float64.class
+      SqlCDataType::SqlCDouble
+    else
+      SqlCDataType::SqlCDefault
+    end
+  end
+
+  def to_mssql(arg)
+    res =
+      if typeof(arg) == Bool.class
+        if arg
+          1
+        else
+          0
+        end
+      elsif typeof(arg) == UInt8
+        arg.to_i16
+      elsif typeof(arg) == UInt16
+        arg.to_i32
+      elsif typeof(arg) == UInt32
+        arg.to_i64
+      else
+        arg
+      end
+
+    MSSQL.encode_nts("#{res}")
+  end
+end
+
 enum SqlDataType
   SqlUnknownType            = 0
   SqlChar                   = 1

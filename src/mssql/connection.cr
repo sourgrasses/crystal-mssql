@@ -1,5 +1,6 @@
 module MSSQL
   class Connection < DB::Connection
+    @details : String?
     getter raw_conn
 
     def initialize(context : DB::ConnectionContext)
@@ -13,7 +14,7 @@ module MSSQL
       @env = MSSQL.alloc_env
       @raw_conn = MSSQL.alloc_conn(@env)
 
-      result = LibODBC.driver_connect(@raw_conn,
+      result = LibODBC.driver_connect(raw_conn,
                                       nil,
                                       conn_string,
                                       conns_size,
@@ -23,7 +24,7 @@ module MSSQL
                                       LibODBC::DriverConnect::SqlDriverComplete)
 
       if result == LibODBC::SqlReturn::SqlSuccessWithInfo
-        puts MSSQL.get_detail("SQLDriverConnect", @raw_conn, 1)
+        @details = MSSQL.get_detail("SQLDriverConnect", raw_conn, LibODBC::HandleType::SqlHandleDbc)
       elsif result != LibODBC::SqlReturn::SqlSuccess
         raise Errno.new("Error establishing connection to server")
       end
