@@ -157,7 +157,7 @@ module MSSQL
       self.read(String) == "1"
     end
 
-    def read(t : Time.class, pattern : String) : Time
+    def read(t : Time.class, pattern : String = "%Y-%m-%d %H:%M:%S.%N") : Time
       Time.parse_local(self.read(String), pattern)
     end
 
