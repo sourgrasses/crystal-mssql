@@ -95,9 +95,9 @@ lib LibODBC
   end
 
   enum LockType
-    SqlLockNoChange     = 0x0000001L
-    SqlLockExclusive    = 0x0000002L
-    SqlLockUnlock       = 0x0000004L
+    SqlLockNoChange     = 1
+    SqlLockExclusive    = 2
+    SqlLockUnlock       = 4
   end
 
   enum Nullable
